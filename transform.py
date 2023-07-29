@@ -98,13 +98,13 @@ def qml_generator(channel_stat, folder):
     minValue.text = channel_stat['per_5']
     maxValue.text = channel_stat['per_95']
 
-    ET.indent(qml_tree, space='  ', level=0)
+    # ET.indent(qml_tree, space='  ', level=0)
 
     return qml_tree.write(f"{folder}\\{channel_stat['tiff_file']}.qml", encoding='UTF-8')
 
 
 
 
-transform_tiff('images - Copy')
+# transform_tiff('images - Copy')
 # output_file = reproject_and_calculating_percentiles('images - Copy')
 # calculating_percentiles(output_file)
