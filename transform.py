@@ -2,8 +2,6 @@ from NGSatSearch.NGSatSearch import NGSatSearch
 import os
 import shutil
 import zipfile
-import geojson
-from shapely.geometry import shape
 from osgeo import gdal, ogr, osr
 import pyproj
 import json
@@ -22,15 +20,10 @@ def extract(folder):
                 with zipfile.ZipFile(dir_path, 'r') as zip_open:
                     zip_open.extractall(folder)
                     os.remove(dir_path)
+                    print('Распаковка успешна')
             except:
                 os.remove(dir_path)
-    print('Распаковка успешна')  # todo : добавить обработку плохих зипов (ниже ошибка)
-
-
-'''
-raise BadZipFile("File is not a zip file")
-zipfile.BadZipFile: File is not a zip file
-'''
+                print('Битый удалён')
 
 
 def transform_tiff(folder, boundary, polarization_type=None):
@@ -43,17 +36,12 @@ def transform_tiff(folder, boundary, polarization_type=None):
             tiff_file = os.path.join(measurement_folder, os.listdir(measurement_folder)[0])
             tiff_file_name, tiff_file_ext = os.path.splitext(os.path.basename(tiff_file))
         else:
-            if polarization_type == 'vh':
-                for file in os.listdir(measurement_folder):
-                    if '_vh_' in file:
-                        tiff_file = os.path.join(measurement_folder, file)
-
-                        tiff_file_name, tiff_file_ext = os.path.splitext(os.path.basename(tiff_file))
-            elif polarization_type == 'vv':
-                for file in os.listdir(measurement_folder):
-                    if '_vv_' in file:
-                        tiff_file = os.path.join(measurement_folder, file)
-                        tiff_file_name, tiff_file_ext = os.path.splitext(os.path.basename(tiff_file))
+            for file in os.listdir(measurement_folder):
+                if polarization_type in file:
+                    tiff_file = os.path.join(measurement_folder, file)
+                    tiff_file_name, tiff_file_ext = os.path.splitext(os.path.basename(tiff_file))
+                else:
+                    print('Нет соотвествующей поляризации')
 
         if not os.path.isdir(f"transformed_image\\{tiff_file_name.upper()}"):
             os.mkdir(f"transformed_image\\{tiff_file_name.upper()}")
@@ -108,9 +96,10 @@ def transform_tiff(folder, boundary, polarization_type=None):
         # print('Перепроецирование завершено')
 
         channel_stat = calculating_percentiles(output_file)
-        print(channel_stat)
+        print(f'Перцентили вычислены, {channel_stat}')
 
-        qml_generator(channel_stat, f"transformed_image\\{tiff_file_name.upper()}")
+        qml_generator(channel_stat, output_file_dir)
+        print(f'QML сгенерирован')
 
         crop_tiff(output_file, boundary)
         print('Обрезка завершена')
@@ -173,13 +162,12 @@ def crop_tiff(input_file, boundary):
     # ds_tiff = gdal.Open(input_file)
 
     res = gdal.Warp(
-        cut_tiff,  # Результирующий обрезанный растр
-        input_file,  # Исходный ратср
-        format='GTiff',  # Формат выходного растра
-        cutlineDSName=boundary,  # Путь до векторного набора с маской
-        cutlineLayer=name,  # Имя слоя внутри векторного набора, пояснения ниже отдельно
+        cut_tiff,
+        input_file,
+        format='GTiff',
+        cutlineDSName=boundary,
+        cutlineLayer=name,
         cropToCutline=True
-        # Указание, что нужно не просто сбросить все пиксели вне маски в NoData, но и обрезать экстент растра по экстенту маски)
     )
 
     del res  # Вызываем деструктор, чтобы записать данные на диск
@@ -206,9 +194,8 @@ def reproject_geojson(input_file):
     return output_file
 
 
-extract('images')
-# transform_tiff('images - Copy', 'boundary.geojson')
-
+# extract('images')
+transform_tiff('images - Copy', 'boundary.geojson')
 
 # def geojson_to_wkt(boundary):
 #     with open(boundary, 'r') as f:

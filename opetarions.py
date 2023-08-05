@@ -1,13 +1,17 @@
 import requests
 import base64
 import geojson
-from shapely.geometry import shape
-import concurrent.futures
-from NGSatSearch.NGSatSearch import NGSatSearch  # https://gitlab.com/nextgis_private/ngsatsearch
-from datetime import datetime
-
 import os
+
 import transform
+import file_upload
+
+import concurrent.futures
+
+from shapely.geometry import shape
+from datetime import datetime
+from NGSatSearch.NGSatSearch import NGSatSearch  # https://gitlab.com/nextgis_private/ngsatsearch
+
 
 # исходные данные на вход
 boundary = 'boundary.geojson'
@@ -41,28 +45,23 @@ options = [
     {'name': 'producttype', 'value': 'GRD'}
 ]
 
+with open(boundary, 'r') as f:
+    data = geojson.load(f)
 
-def geojson_to_wkt(boundary):
-    with open(boundary, 'r') as f:
-        data = geojson.load(f)
+wkt_geometries = []
 
-    wkt_geometries = []
-
-    if data['type'] == 'FeatureCollection':
-        for feature in data['features']:
-            geometry = feature['geometry']
-            wkt_geometries.append(shape(geometry).wkt)
-    else:
-        geometry = data['geometry']
+if data['type'] == 'FeatureCollection':
+    for feature in data['features']:
+        geometry = feature['geometry']
         wkt_geometries.append(shape(geometry).wkt)
+else:
+    geometry = data['geometry']
+    wkt_geometries.append(shape(geometry).wkt)
 
-    return '\n'.join(wkt_geometries)
-
-
-wkt_geometries = geojson_to_wkt(boundary)
+wkt_data = '\n'.join(wkt_geometries)
 
 scenes = ngss.search_by_conditions(platform='Sentinel-1',
-                                   wkt_region=wkt_geometries,
+                                   wkt_region=wkt_data,
                                    # ogr_source=boundary,
                                    start_date=datetime(2023, 7, 1),
                                    end_date=datetime(2023, 7, 20),
@@ -88,34 +87,4 @@ else:
 
 # загрузка данных в NGW (https://docs.nextgis.ru/docs_ngweb_dev/doc/developer/file_upload.html#multiple-file-upload)
 
-# upload_url = f'{webgis_addr}/api/component/file_upload/'
-# create_layer_url = f'{webgis_addr}/api/resource/'
-#
-# images_reproj_directory = 'transformed_image'
-# creds = f"{webgis_username}:{webgis_password}"
-# headers = {
-#             'Accept': '*/*',
-#             'Authorization': 'Basic' + ' ' + base64.b64encode(creds.encode("utf-8")).decode("utf-8")
-#         }
-#
-# upload_dirs = [folder for folder in os.listdir(images_reproj_directory)]
-#
-# for upload_dir in upload_dirs:
-#     upload_dir_path = os.path.join(images_reproj_directory, upload_dir)
-#     upload_files = [os.path.join(upload_dir_path, file) for file in os.listdir(upload_dir_path)]
-#
-#     print('Загрузка началась')
-#
-#     for upload_file in upload_files:
-#         with open(upload_file, 'rb') as file:
-#             form_data = {
-#                 'name': [upload_file, file]
-#             }
-#             response = requests.post(url=upload_url,
-#                                      files=files,
-#                                      data=form_data,
-#                                      headers=headers,)
-#         if response.status_code == 200:
-#             print('Загрузка завершена', upload_file)
-#         else:
-#             print(response.status_code)  # todo : возможно, потом надо создать растровый слой
+file_upload.file_upload(webgis_addr, webgis_username, webgis_password)
