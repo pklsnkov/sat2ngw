@@ -80,7 +80,7 @@ if scenes['code'] == 0:
                 print(f"Ошибка для id: {id}: {e}")
 
     transform.extract(download_directory)
-    # transform.transform_tiff(download_directory, boundary, polarization_type)
+    transform.transform_tiff(download_directory, boundary, polarization_type)
 
 else:
     print(scenes['message'])

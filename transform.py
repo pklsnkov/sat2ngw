@@ -8,6 +8,8 @@ import json
 
 import numpy as np
 
+# import file_upload
+
 import xml.etree.ElementTree as ET
 
 
@@ -106,6 +108,8 @@ def transform_tiff(folder, boundary, polarization_type=None):
 
         os.remove(output_file)
 
+        # file_upload.file_upload(webgis_addr, webgis_username, webgis_password)
+
     # return output_file
 
 
@@ -195,7 +199,10 @@ def reproject_geojson(input_file):
 
 
 # extract('images')
-transform_tiff('images - Copy', 'boundary.geojson')
+# webgis_addr = 'https://kolesnikov-p.nextgis.com'
+# webgis_username = 'pvk200815@gmail.com'
+# webgis_password = 'yNCY3VQ4zNDDYJ4'
+# transform_tiff('images - Copy', 'boundary.geojson')
 
 # def geojson_to_wkt(boundary):
 #     with open(boundary, 'r') as f:

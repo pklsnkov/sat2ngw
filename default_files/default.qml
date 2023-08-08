@@ -1,11 +1,11 @@
 <!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
-<qgis version="3.16.16-Hannover" maxScale="0" hasScaleBasedVisibilityFlag="0" styleCategories="AllStyleCategories" minScale="1e+08">
+<qgis styleCategories="AllStyleCategories" hasScaleBasedVisibilityFlag="0" maxScale="0" version="3.16.16-Hannover" minScale="1e+08">
   <flags>
     <Identifiable>1</Identifiable>
     <Removable>1</Removable>
     <Searchable>1</Searchable>
   </flags>
-  <temporal enabled="0" mode="0" fetchMode="0">
+  <temporal mode="0" enabled="0" fetchMode="0">
     <fixedRange>
       <start></start>
       <end></end>
@@ -19,9 +19,9 @@
   </customproperties>
   <pipe>
     <provider>
-      <resampling enabled="false" zoomedInResamplingMethod="nearestNeighbour" zoomedOutResamplingMethod="nearestNeighbour" maxOversampling="2"/>
+      <resampling zoomedInResamplingMethod="nearestNeighbour" zoomedOutResamplingMethod="nearestNeighbour" maxOversampling="2" enabled="false"/>
     </provider>
-    <rasterrenderer opacity="1" alphaBand="-1" grayBand="1" nodataColor="" type="singlebandgray" gradient="BlackToWhite">
+    <rasterrenderer opacity="1" type="singlebandgray" alphaBand="-1" gradient="BlackToWhite" nodataColor="" grayBand="1">
       <rasterTransparency/>
       <minMaxOrigin>
         <limits>CumulativeCut</limits>
@@ -32,13 +32,13 @@
         <stdDevFactor>2</stdDevFactor>
       </minMaxOrigin>
       <contrastEnhancement>
-        <minValue></minValue>
-        <maxValue></maxValue>
+        <minValue>0</minValue>
+        <maxValue>269</maxValue>
         <algorithm>StretchToMinimumMaximum</algorithm>
       </contrastEnhancement>
     </rasterrenderer>
-    <brightnesscontrast brightness="0" gamma="1" contrast="0"/>
-    <huesaturation colorizeOn="0" colorizeStrength="100" colorizeRed="255" saturation="0" grayscaleMode="0" colorizeGreen="128" colorizeBlue="128"/>
+    <brightnesscontrast contrast="0" brightness="0" gamma="1"/>
+    <huesaturation colorizeStrength="100" colorizeOn="0" colorizeBlue="128" saturation="0" colorizeGreen="128" grayscaleMode="0" colorizeRed="255"/>
     <rasterresampler maxOversampling="2"/>
     <resamplingStage>resamplingFilter</resamplingStage>
   </pipe>
