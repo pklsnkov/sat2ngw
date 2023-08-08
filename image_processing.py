@@ -8,9 +8,11 @@ import json
 
 import numpy as np
 
-# import file_upload
+import file_upload
 
 import xml.etree.ElementTree as ET
+
+# from operations import webgis_addr, webgis_username, webgis_password, parent_id
 
 
 def extract(folder):
@@ -28,7 +30,7 @@ def extract(folder):
                 print('Битый удалён')
 
 
-def transform_tiff(folder, boundary, polarization_type=None):
+def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_password, parent_id, polarization_type=None):
     if not os.path.isdir('transformed_image'):
         os.mkdir('transformed_image')
 
@@ -108,9 +110,9 @@ def transform_tiff(folder, boundary, polarization_type=None):
 
         os.remove(output_file)
 
-        # file_upload.file_upload(webgis_addr, webgis_username, webgis_password)
+    file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'transformed_image', parent_id)
 
-    # return output_file
+    clear_directory('transformed_image')
 
 
 def calculating_percentiles(tiff_file):
@@ -198,11 +200,28 @@ def reproject_geojson(input_file):
     return output_file
 
 
+def clear_directory(directory_path):
+    if not os.path.exists(directory_path):
+        print(f"Директория {directory_path} не существует.")
+        return
+
+    for item in os.listdir(directory_path):
+        item_path = os.path.join(directory_path, item)
+
+        if os.path.isfile(item_path):
+            os.remove(item_path)
+            print(f"Удален файл: {item_path}")
+        elif os.path.isdir(item_path):
+            clear_directory(item_path)
+            os.rmdir(item_path)
+            print(f"Удалена директория: {item_path}")
+
+
 # extract('images')
-# webgis_addr = 'https://kolesnikov-p.nextgis.com'
-# webgis_username = 'pvk200815@gmail.com'
-# webgis_password = 'yNCY3VQ4zNDDYJ4'
-# transform_tiff('images - Copy', 'boundary.geojson')
+webgis_addr = 'https://kolesnikov-p.nextgis.com'
+webgis_username = 'pvk200815@gmail.com'
+webgis_password = 'yNCY3VQ4zNDDYJ4'
+transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)
 
 # def geojson_to_wkt(boundary):
 #     with open(boundary, 'r') as f:

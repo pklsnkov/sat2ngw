@@ -3,8 +3,8 @@ import base64
 import geojson
 import os
 
-import transform
-import file_upload
+import image_processing
+# import file_upload
 
 import concurrent.futures
 
@@ -22,6 +22,7 @@ webgis_addr = 'https://kolesnikov-p.nextgis.com'
 webgis_username = 'pvk200815@gmail.com'
 webgis_password = 'yNCY3VQ4zNDDYJ4'
 download_directory = 'images'
+parent_id = 57
 
 service_name = 'copernicus'  # захардкодено
 polarization_type = None  # захардкодено
@@ -32,6 +33,17 @@ username_password = 'antanantan'
 
 if not os.path.isdir(download_directory):
     os.mkdir(download_directory)
+# else:
+#     for item in os.listdir(download_directory):
+#         item_path = os.path.join(download_directory, item)
+#
+#         if os.path.isfile(item_path):
+#             os.remove(item_path)
+#             print(f"Удален файл: {item_path}")
+#         elif os.path.isdir(item_path):
+#             transform.clear_directory(item_path)
+#             os.rmdir(item_path)
+#             print(f"Удалена директория: {item_path}")
 
 ngss = NGSatSearch(service_name=service_name,
                    username=username_service,
@@ -79,12 +91,8 @@ if scenes['code'] == 0:
             except Exception as e:
                 print(f"Ошибка для id: {id}: {e}")
 
-    transform.extract(download_directory)
-    transform.transform_tiff(download_directory, boundary, polarization_type)
+    image_processing.extract(download_directory)
+    image_processing.transform_tiff(download_directory, boundary, webgis_addr, webgis_username, webgis_password, parent_id, polarization_type)
 
 else:
     print(scenes['message'])
-
-# загрузка данных в NGW (https://docs.nextgis.ru/docs_ngweb_dev/doc/developer/file_upload.html#multiple-file-upload)
-
-file_upload.file_upload(webgis_addr, webgis_username, webgis_password)
