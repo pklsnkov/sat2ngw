@@ -1,7 +1,7 @@
-import requests
-import base64
 import geojson
+import re
 import os
+from urllib.parse import urlparse
 
 import image_processing
 # import file_upload
@@ -12,7 +12,6 @@ from shapely.geometry import shape
 from datetime import datetime
 from NGSatSearch.NGSatSearch import NGSatSearch  # https://gitlab.com/nextgis_private/ngsatsearch
 
-
 # исходные данные на вход
 boundary = 'boundary.geojson'
 catalog = ''
@@ -22,7 +21,7 @@ webgis_addr = 'https://kolesnikov-p.nextgis.com'
 webgis_username = 'pvk200815@gmail.com'
 webgis_password = 'yNCY3VQ4zNDDYJ4'
 download_directory = 'images'
-parent_id = 57
+parent_id = 178
 
 service_name = 'copernicus'  # захардкодено
 polarization_type = None  # захардкодено
@@ -33,17 +32,51 @@ username_password = 'antanantan'
 
 if not os.path.isdir(download_directory):
     os.mkdir(download_directory)
-# else:
-#     for item in os.listdir(download_directory):
-#         item_path = os.path.join(download_directory, item)
-#
-#         if os.path.isfile(item_path):
-#             os.remove(item_path)
-#             print(f"Удален файл: {item_path}")
-#         elif os.path.isdir(item_path):
-#             transform.clear_directory(item_path)
-#             os.rmdir(item_path)
-#             print(f"Удалена директория: {item_path}")
+else:
+    image_processing.clear_directory(download_directory)
+
+
+# if webgis_addr.endswith('/'):
+#     webgis_addr_len = len(webgis_addr)
+#     webgis_addr = webgis_addr[:webgis_addr_len-1]
+# if 'https://' not in webgis_addr:
+#     webgis_addr = f'https://{webgis_addr}'
+# result = urlparse(webgis_addr)
+# if not all([result.scheme, result.netloc]):
+#     raise ConnectionError('URL не валиден')
+
+def make_valid_url(url):
+    # beautify url taken from
+    # https://github.com/nextgis/ngw_external_api_python/blob/master/qgis/ngw_connection_edit_dialog.py#L167
+
+    url = url.strip()
+
+    # Always remove trailing slashes (this is only a base url which will not be
+    # used standalone anywhere).
+    while url.endswith('/'):
+        url = url[:-1]
+
+    # Replace common ending when user copy-pastes from browser URL.
+    url = re.sub('/resource/[0-9]+', '', url)
+
+    o = urlparse(url)
+    hostname = o.hostname
+
+    # Select https if protocol has not been defined by user.
+    if hostname is None:
+        hostname = 'http://' if force_http else 'https://'
+        return hostname + url
+
+    # Force https regardless of what user has selected, but only for cloud connections.
+    if url.startswith('http://') and url.endswith('.nextgis.com') and not force_http:
+        return url.replace('http://', 'https://')
+
+    return url
+
+
+force_http = False
+if webgis_addr.startswith('http://'): force_http = True
+make_valid_url(webgis_addr)
 
 ngss = NGSatSearch(service_name=service_name,
                    username=username_service,
@@ -92,7 +125,13 @@ if scenes['code'] == 0:
                 print(f"Ошибка для id: {id}: {e}")
 
     image_processing.extract(download_directory)
-    image_processing.transform_tiff(download_directory, boundary, webgis_addr, webgis_username, webgis_password, parent_id, polarization_type)
+    image_processing.transform_tiff(folder=download_directory,
+                                    boundary=boundary,
+                                    webgis_addr=webgis_addr,
+                                    webgis_username=webgis_username,
+                                    webgis_password=webgis_password,
+                                    parent_id=parent_id,
+                                    polarization_type=polarization_type)
 
 else:
     print(scenes['message'])

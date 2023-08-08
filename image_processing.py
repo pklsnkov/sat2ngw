@@ -112,7 +112,7 @@ def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_passwo
 
     file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'transformed_image', parent_id)
 
-    clear_directory('transformed_image')
+    # clear_directory('transformed_image')
 
 
 def calculating_percentiles(tiff_file):
@@ -218,27 +218,8 @@ def clear_directory(directory_path):
 
 
 # extract('images')
-webgis_addr = 'https://kolesnikov-p.nextgis.com'
-webgis_username = 'pvk200815@gmail.com'
-webgis_password = 'yNCY3VQ4zNDDYJ4'
-transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)
 
-# def geojson_to_wkt(boundary):
-#     with open(boundary, 'r') as f:
-#         data = geojson.load(f)
-#
-#     wkt_geometries = []
-#
-#     if data['type'] == 'FeatureCollection':
-#         for feature in data['features']:
-#             geometry = feature['geometry']
-#             wkt_geometries.append(shape(geometry).wkt)
-#     else:
-#         geometry = data['geometry']
-#         wkt_geometries.append(shape(geometry).wkt)
-#
-#     return '\n'.join(wkt_geometries)
-#
-# wkt_geometries = geojson_to_wkt('boundary.geojson')
-#
-# print(wkt_geometries)
+# webgis_addr = 'https://kolesnikov-p.nextgis.com'
+# webgis_username = 'pvk200815@gmail.com'
+# webgis_password = 'yNCY3VQ4zNDDYJ4'
+# transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)

@@ -10,8 +10,8 @@ import glob
 from contextlib import closing
 
 
-def file_upload(webgis_addr, webgis_username, webgis_password, images_directory, parent_id):
-    images_directory = 'transformed_image'
+def file_upload(webgis_addr, webgis_username, webgis_password, images_directory, parent_id=0):
+    # images_directory = 'transformed_image'
     # creds = f"{webgis_username}:{webgis_password}"
     creds = (webgis_username, webgis_password)
 
@@ -37,9 +37,28 @@ def file_upload(webgis_addr, webgis_username, webgis_password, images_directory,
 
         print(f'Загрузка завершена')
 
-    tg_message(token='6363573328:AAGLrbZtHy8hkZ6_E0pa_bsRb9fLXRkuIXI',
-               chat_id='-1001989735558',
-               text='Загрузка снимков в NGW завершена')
+        upload_dir_basename = os.path.basename(upload_dir)
+        parts = upload_dir_basename.split('-')
+        for part in parts:
+            split_part = part.split('T')
+            if len(split_part) == 2:
+                shooting_time_source = split_part[0]
+                year = shooting_time_source[:4]
+                month = shooting_time_source[4:6]
+                day = shooting_time_source[6:]
+                shooting_time = f'{day}.{month}.{year}'
+                break
+
+        message_text = (f"Загрузка снимка в NGW завершена,\n"
+                        f"Идентификатор сцены: {upload_dir_basename}\n"
+                        f"Дата съёмки: {shooting_time}\n"
+                        f"Ссылка на превью в NextGIS Web: {webgis_addr}/resource/{raster_style_id}/preview")
+
+        tg_message(token='6363573328:AAGLrbZtHy8hkZ6_E0pa_bsRb9fLXRkuIXI',
+                   chat_id='-1001989735558',
+                   text=message_text)
+
+        print('Сообщение доставлено')
 
 
 def uploading_file(webgis_addr, creds, file):
@@ -108,7 +127,7 @@ def tg_message(token, chat_id, text):
     method = 'sendMessage'
     response = session.post(
         url='https://api.telegram.org/bot{0}/{1}'.format(token, method),
-        data={'chat_id': chat_id, 'text': text}
+        data={'chat_id': chat_id, 'text': text, 'disable_web_page_preview': True}
     ).json()
 
 #
