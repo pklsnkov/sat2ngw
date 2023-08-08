@@ -54,11 +54,11 @@ def file_upload(webgis_addr, webgis_username, webgis_password, images_directory,
                         f"Дата съёмки: {shooting_time}\n"
                         f"Ссылка на превью в NextGIS Web: {webgis_addr}/resource/{raster_style_id}/preview")
 
-        tg_message(token='6363573328:AAGLrbZtHy8hkZ6_E0pa_bsRb9fLXRkuIXI',
-                   chat_id='-1001989735558',
-                   text=message_text)
-
-        print('Сообщение доставлено')
+        # tg_message(token='6363573328:AAGLrbZtHy8hkZ6_E0pa_bsRb9fLXRkuIXI',
+        #            chat_id='-1001989735558',
+        #            text=message_text)
+        #
+        # print('Сообщение доставлено')
 
 
 def uploading_file(webgis_addr, creds, file):

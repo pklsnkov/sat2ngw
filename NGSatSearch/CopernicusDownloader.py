@@ -89,7 +89,7 @@ class CopernicusDownloader():
         datasource = requests.get(self.opensearch_base_url,
                                   params={'q': conditions, 'rows': str(rows), 'orderby': 'beginposition asc'},
                                   auth=HTTPBasicAuth(self.username, self.password))
-
+        
         if datasource.status_code == 401:
             raise NGSatExceptions.AuthorizationError
         if datasource.status_code == 404:

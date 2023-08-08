@@ -6,7 +6,7 @@
 # ---------------------------------------------------------
 # Module for searching and downloading satellite data
 #
-# Copyright (C) 2019 NextGIS (info@nextgis.org)
+# Copyright (C) 2019 NextGIS (info@nextgis.com)
 #
 #******************************************************************************
 
@@ -87,7 +87,7 @@ class NGSatSearch():
 
             layer = ogr_dataset.GetLayer()
             if layer.GetGeomType() != 3:
-                return {'status': 'error', 'code': 1, 'message': 'OGR Datasource myst be polygon (not multipolygon, collection etc.)'}
+                return {'status': 'error', 'code': 1, 'message': 'OGR Datasource must be polygon (not multipolygon, collection etc.)'}
 
             reprojected_ds = self.__reproject_ogr_dataset_to_projection(ogr_dataset, ogr.osr.SRS_WKT_WGS84_LAT_LONG, first_feature=True)
             reprojected_layer = reprojected_ds.GetLayer()
@@ -111,7 +111,7 @@ class NGSatSearch():
         except NGSatExceptions.AuthorizationError:
             return {'status': 'error', 'code': 1, 'message': 'Authorization error. Check credentials'}
         except NGSatExceptions.InvalidMetadata:
-            return {'status': 'error', 'code': 1, 'message': 'Invalid results obtained. Break'}
+            return {'status': 'error', 'code': 1, 'message': 'Invalid results obtained. Break. Possible reason: too much points in the given area of interest. Make sure it contains less than 10 points'}
         except NGSatExceptions.InvalidOption:
             return {'status': 'error', 'code': 1, 'message': 'Invalid options in request. See supported platforms: %s' % self.downloader.platforms}
         except NGSatExceptions.QueryError:
@@ -170,6 +170,10 @@ class NGSatSearch():
         layer = ogr_dataset.GetLayer()
         sourceprj = layer.GetSpatialRef()
         targetprj = ogr.osr.SpatialReference(wkt=target_projection)
+        try:
+            targetprj.SetAxisMappingStrategy(ogr.osr.OAMS_TRADITIONAL_GIS_ORDER)
+        except:
+            pass
         transform = ogr.osr.CoordinateTransformation(sourceprj, targetprj)
 
         to_fill = ogr.GetDriverByName('memory')

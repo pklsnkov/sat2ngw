@@ -1,4 +1,3 @@
-from NGSatSearch.NGSatSearch import NGSatSearch
 import os
 import shutil
 import zipfile
@@ -31,8 +30,6 @@ def extract(folder):
 
 
 def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_password, parent_id, polarization_type=None):
-    if not os.path.isdir('transformed_image'):
-        os.mkdir('transformed_image')
 
     for attribute_folder in os.listdir(folder):
         measurement_folder = os.path.join(folder, attribute_folder, 'measurement')
@@ -57,48 +54,6 @@ def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_passwo
 
         print('Файлы выбраны')
 
-        # src_dataset = gdal.Open(tiff_file)
-        # target_projection = 'EPSG:3857'
-        #
-        # if src_dataset is None:
-        #     raise Exception("Не удалось открыть исходный GeoTIFF.")
-        #
-        # # src_srs = src_dataset.GetGCPProjection()
-        # gcps = src_dataset.GetGCPs()
-        #
-        # src_width = src_dataset.RasterXSize
-        # src_height = src_dataset.RasterYSize
-        #
-        # translate_options = gdal.TranslateOptions(outputSRS=target_projection,
-        #                                           GCPs=gcps,
-        #                                           width=src_width,
-        #                                           height=src_height,
-        #                                           )
-        #
-        # gdal.Translate(output_file,
-        #                src_dataset,
-        #                options=translate_options)
-
-        # src_width = src_dataset.RasterXSize
-        # src_height = src_dataset.RasterYSize
-        #
-        # warp_options = gdal.WarpOptions(dstSRS=target_projection,
-        #                                 format='GTiff',
-        #                                 srcSRS='EPSG:4326',
-        #                                 width=src_width,
-        #                                 height=src_height
-        #                                 )
-        #
-        # gdal.Warp(output_file,
-        #           src_dataset,
-        #           options=warp_options)
-
-        # tiff_files.append(output_file)
-        #
-        # source_dataset = None
-        #
-        # print('Перепроецирование завершено')
-
         channel_stat = calculating_percentiles(output_file)
         print(f'Перцентили вычислены, {channel_stat}')
 
@@ -110,7 +65,7 @@ def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_passwo
 
         os.remove(output_file)
 
-    file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'transformed_image', parent_id)
+    # file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'transformed_image', parent_id)
 
     # clear_directory('transformed_image')
 
@@ -159,13 +114,9 @@ def qml_generator(channel_stat, folder):
 def crop_tiff(input_file, boundary):
     cut_tiff = input_file.replace('.tiff', '_cut.tiff')
 
-    # gdal.SetConfigOption('CHECK_DISK_FREE_SPACE', 'FALSE')
-
     ds = gdal.OpenEx(boundary)
     layer = ds.GetLayerByIndex(0)
     name = layer.GetName()
-
-    # ds_tiff = gdal.Open(input_file)
 
     res = gdal.Warp(
         cut_tiff,
