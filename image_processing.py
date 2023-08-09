@@ -44,10 +44,10 @@ def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_passwo
                 else:
                     print('Нет соотвествующей поляризации')
 
-        if not os.path.isdir(f"transformed_image\\{tiff_file_name.upper()}"):
-            os.mkdir(f"transformed_image\\{tiff_file_name.upper()}")
+        if not os.path.isdir(f"tmp\\transformed_image\\{tiff_file_name.upper()}"):
+            os.mkdir(f"tmp\\transformed_image\\{tiff_file_name.upper()}")
 
-        output_file_dir = os.path.join('transformed_image', f'{tiff_file_name.upper()}')
+        output_file_dir = os.path.join('tmp', 'transformed_image', f'{tiff_file_name.upper()}')
         tiff_file_basename = os.path.basename(tiff_file)
         output_file = os.path.join(output_file_dir, tiff_file_basename)
         shutil.copy(tiff_file, output_file)
@@ -65,9 +65,10 @@ def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_passwo
 
         os.remove(output_file)
 
-    # file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'transformed_image', parent_id)
+    file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'tmp\\transformed_image', parent_id)
 
-    # clear_directory('transformed_image')
+    # clear_directory('tmp\\transformed_image')
+    clear_directory('tmp')
 
 
 def calculating_percentiles(tiff_file):
@@ -170,7 +171,7 @@ def clear_directory(directory_path):
 
 # extract('images')
 
-# webgis_addr = 'https://kolesnikov-p.nextgis.com'
-# webgis_username = 'pvk200815@gmail.com'
-# webgis_password = 'yNCY3VQ4zNDDYJ4'
-# transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)
+webgis_addr = 'https://kolesnikov-p.nextgis.com'
+webgis_username = 'pvk200815@gmail.com'
+webgis_password = 'yNCY3VQ4zNDDYJ4'
+transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)

@@ -92,10 +92,15 @@ if not os.path.isdir(download_directory):
 else:
     image_processing.clear_directory(download_directory)
 
-if not os.path.isdir('transformed_image'):
-    os.mkdir('transformed_image')
+if not os.path.isdir('tmp'):
+    os.mkdir('tmp')
 else:
-    image_processing.clear_directory('transformed_image')
+    image_processing.clear_directory('tmp')
+
+if not os.path.isdir('tmp\\transformed_image'):
+    os.mkdir('tmp\\transformed_image')
+else:
+    image_processing.clear_directory('tmp\\transformed_image')
 
 force_http = False
 if webgis_addr.startswith('http://'): force_http = True
@@ -147,7 +152,8 @@ else:
 # file_upload.file_upload(webgis_addr=webgis_addr,
 #                         webgis_username=webgis_username,
 #                         webgis_password=webgis_password,
-#                         images_directory='transformed_image',
+#                         images_directory='tmp\\transformed_image',
 #                         parent_id=parent_id)
 
+# image_processing.clear_directory('tmp')
 # image_processing.clear_directory('transformed_image')

@@ -4,6 +4,7 @@ import requests
 import os
 import base64
 import re
+import math
 from tusclient.client import TusClient
 from urllib.parse import urljoin
 import glob
@@ -37,6 +38,8 @@ def file_upload(webgis_addr, webgis_username, webgis_password, images_directory,
 
         print(f'Загрузка завершена')
 
+        render_url = raster_style_preview(webgis_addr, raster_style_id)
+
         upload_dir_basename = os.path.basename(upload_dir)
         parts = upload_dir_basename.split('-')
         for part in parts:
@@ -54,11 +57,14 @@ def file_upload(webgis_addr, webgis_username, webgis_password, images_directory,
                         f"Дата съёмки: {shooting_time}\n"
                         f"Ссылка на превью в NextGIS Web: {webgis_addr}/resource/{raster_style_id}/preview")
 
-        # tg_message(token='6363573328:AAGLrbZtHy8hkZ6_E0pa_bsRb9fLXRkuIXI',
-        #            chat_id='-1001989735558',
-        #            text=message_text)
-        #
-        # print('Сообщение доставлено')
+        tg_message(method='sendPhoto',
+                   token='6363573328:AAGLrbZtHy8hkZ6_E0pa_bsRb9fLXRkuIXI',
+                   chat_id='-1001989735558',
+                   text=message_text,
+                   preview_path=f'tmp\\{raster_style_id}.png'
+                   )
+
+        print('Сообщение доставлено')
 
 
 def uploading_file(webgis_addr, creds, file):
@@ -120,18 +126,69 @@ def create_raster_style(webgis_addr, creds, filename, upload_meta, raster_layer_
 
     return response.json()['id']
 
+def raster_style_preview(webgis_addr, style_id):
+    extent_url = f'{webgis_addr}/api/resource/{style_id}/extent'
+    response = requests.get(extent_url)
+    if response.status_code == 200:
+        json_extent = response.json()
+        extent_dict = {
+            'minLon': json_extent['extent']['minLon'],
+            'maxLon': json_extent['extent']['maxLon'],
+            'minLat': json_extent['extent']['minLat'],
+            'maxLat': json_extent['extent']['maxLat']
+        }
 
-def tg_message(token, chat_id, text):
+        reproj_coords = {}
+        for key, value in extent_dict.items():
+            if 'Lon' in key:
+                x = wgs84To3857X(value)
+                reproj_coords[key] = x
+            elif 'Lat' in key:
+                y = wgs84To3857Y(value)
+                reproj_coords[key] = y
+
+    else:
+        print(f'Error in coverage request, code {response.status_code}')
+
+    render_url = (f"{webgis_addr}/api/component/render/image?"
+                  f"resource={style_id}"
+                  f"&extent={int(reproj_coords['minLon'])},{int(reproj_coords['minLat'])},{int(reproj_coords['maxLon'])},{int(reproj_coords['maxLat'])}"
+                  f"&size=500,500")
+
+    download_response = requests.get(render_url)
+
+    if download_response.status_code == 200:
+        with open(f'tmp\\{style_id}.png', 'wb') as file:
+            file.write(download_response.content)
+
+    return render_url
+
+
+def wgs84To3857X(x):
+    earthRadius = 6378137.0
+    return earthRadius * math.radians(float(x))
+
+
+def wgs84To3857Y(y):
+    earthRadius = 6378137.0
+    return earthRadius * math.log(
+        math.tan(math.pi / 4 + math.radians(float(y)) / 2)
+    )
+
+
+def tg_message(method, token, chat_id, text, preview_path):
     session = requests.Session()
-
-    method = 'sendMessage'
     response = session.post(
-        url='https://api.telegram.org/bot{0}/{1}'.format(token, method),
-        data={'chat_id': chat_id, 'text': text, 'disable_web_page_preview': True}
+        url=f'https://api.telegram.org/bot{token}/{method}?chat_id={chat_id}',
+        # data={'chat_id': chat_id, 'text': text}
+        files={'photo': open(preview_path, 'rb')},
+        data={'caption': text}
     ).json()
 
 #
 #
-# file_upload('https://kolesnikov-p.nextgis.com',
-#             'pvk200815@gmail.com',
-#             'yNCY3VQ4zNDDYJ4')
+file_upload('https://kolesnikov-p.nextgis.com',
+            'pvk200815@gmail.com',
+            'yNCY3VQ4zNDDYJ4',
+            'tmp\\transformed_image',
+            57)
