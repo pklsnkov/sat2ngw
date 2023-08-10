@@ -11,8 +11,6 @@ import file_upload
 
 import xml.etree.ElementTree as ET
 
-# from operations import webgis_addr, webgis_username, webgis_password, parent_id
-
 
 def extract(folder):
     dir_list = os.listdir(folder)
@@ -23,10 +21,9 @@ def extract(folder):
                 with zipfile.ZipFile(dir_path, 'r') as zip_open:
                     zip_open.extractall(folder)
                     os.remove(dir_path)
-                    print('Распаковка успешна')
+                    print('Unpacking was successful')
             except:
                 os.remove(dir_path)
-                print('Битый удалён')
 
 
 def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_password, parent_id, polarization_type=None):
@@ -52,23 +49,23 @@ def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_passwo
         output_file = os.path.join(output_file_dir, tiff_file_basename)
         shutil.copy(tiff_file, output_file)
 
-        print('Файлы выбраны')
+        print('Files are selected')
 
         channel_stat = calculating_percentiles(output_file)
-        print(f'Перцентили вычислены, {channel_stat}')
+        print(f'Percentiles are calculated, {channel_stat}')
 
         qml_generator(channel_stat, output_file_dir)
-        print(f'QML сгенерирован')
+        print(f'QML was generated')
 
         crop_tiff(output_file, boundary)
-        print('Обрезка завершена')
+        print('Cropping is complete')
 
         os.remove(output_file)
 
     file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'tmp\\transformed_image', parent_id)
 
     # clear_directory('tmp\\transformed_image')
-    clear_directory('tmp')
+    # clear_directory('tmp')
 
 
 def calculating_percentiles(tiff_file):
@@ -113,14 +110,14 @@ def qml_generator(channel_stat, folder):
 
 
 def crop_tiff(input_file, boundary):
-    cut_tiff = input_file.replace('.tiff', '_cut.tiff')
+    crop_tiff = input_file.replace('.tiff', '_crop.tiff')
 
     ds = gdal.OpenEx(boundary)
     layer = ds.GetLayerByIndex(0)
     name = layer.GetName()
 
     res = gdal.Warp(
-        cut_tiff,
+        crop_tiff,
         input_file,
         format='GTiff',
         cutlineDSName=boundary,
@@ -154,7 +151,7 @@ def reproject_geojson(input_file):
 
 def clear_directory(directory_path):
     if not os.path.exists(directory_path):
-        print(f"Директория {directory_path} не существует.")
+        print(f"Directory {directory_path} doesn't exist")
         return
 
     for item in os.listdir(directory_path):
@@ -162,16 +159,16 @@ def clear_directory(directory_path):
 
         if os.path.isfile(item_path):
             os.remove(item_path)
-            print(f"Удален файл: {item_path}")
+            print(f"Delete file: {item_path}")
         elif os.path.isdir(item_path):
             clear_directory(item_path)
             os.rmdir(item_path)
-            print(f"Удалена директория: {item_path}")
+            print(f"Delete directory: {item_path}")
 
 
 # extract('images')
 
-webgis_addr = 'https://kolesnikov-p.nextgis.com'
-webgis_username = 'pvk200815@gmail.com'
-webgis_password = 'yNCY3VQ4zNDDYJ4'
-transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)
+# webgis_addr = 'https://kolesnikov-p.nextgis.com'
+# webgis_username = 'pvk200815@gmail.com'
+# webgis_password = 'yNCY3VQ4zNDDYJ4'
+# transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)

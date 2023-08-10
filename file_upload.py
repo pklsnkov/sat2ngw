@@ -2,13 +2,9 @@
 
 import requests
 import os
-import base64
-import re
 import math
 from tusclient.client import TusClient
 from urllib.parse import urljoin
-import glob
-from contextlib import closing
 
 
 def file_upload(webgis_addr, webgis_username, webgis_password, images_directory, parent_id=0):
@@ -63,8 +59,6 @@ def file_upload(webgis_addr, webgis_username, webgis_password, images_directory,
                    text=message_text,
                    preview_path=f'tmp\\{raster_style_id}.png'
                    )
-
-        print('Сообщение доставлено')
 
 
 def uploading_file(webgis_addr, creds, file):
@@ -158,10 +152,8 @@ def raster_style_preview(webgis_addr, style_id):
     download_response = requests.get(render_url)
 
     if download_response.status_code == 200:
-        with open(f'tmp\\{style_id}.png', 'wb') as file:
+        with open(f'tmp\\previews\\{style_id}.png', 'wb') as file:
             file.write(download_response.content)
-
-    return render_url
 
 
 def wgs84To3857X(x):
@@ -185,10 +177,12 @@ def tg_message(method, token, chat_id, text, preview_path):
         data={'caption': text}
     ).json()
 
+    print('Message delivered')
+
 #
 #
-file_upload('https://kolesnikov-p.nextgis.com',
-            'pvk200815@gmail.com',
-            'yNCY3VQ4zNDDYJ4',
-            'tmp\\transformed_image',
-            57)
+# file_upload('https://kolesnikov-p.nextgis.com',
+#             'pvk200815@gmail.com',
+#             'yNCY3VQ4zNDDYJ4',
+#             'tmp\\transformed_image',
+#             57)
