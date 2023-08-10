@@ -2,11 +2,11 @@ import geojson
 import re
 import os
 from urllib.parse import urlparse
+import concurrent.futures
 
 import file_upload
 import image_processing
-
-import concurrent.futures
+import config
 
 from shapely.geometry import shape
 from datetime import datetime
@@ -15,25 +15,26 @@ from datetime import date
 from NGSatSearch.NGSatSearch import NGSatSearch  # https://gitlab.com/nextgis_private/ngsatsearch
 
 # исходные данные на вход
-boundary = 'boundary.geojson'
-catalog = ''
-platform = ''
-satt_imagery_type = ''
-webgis_addr = ''
-webgis_username = ''
-webgis_password = ''
-parent_id = 0
+boundary = config.boundary
+catalog = config.catalog
+platform = config.platform
+satt_imagery_type = config.satt_imagery_type
+
+webgis_addr = config.webgis_addr
+webgis_username = config.webgis_username
+webgis_password = config.webgis_password
+parent_id = config.parent_id
 
 service_name = 'copernicus'  # захардкодено
 polarization_type = None  # захардкодено
 download_directory = 'images'  # захардкодено
 
 # тестовые данные
-username_service = 'antan183'
-username_password = 'antanantan'
+username_service = config.username_service
+username_password = config.username_password
+
 
 def make_valid_url(url):
-
     url = url.strip()
 
     while url.endswith('/'):
@@ -73,20 +74,15 @@ def json_to_wkt(json):
 
 if not os.path.isdir(download_directory):
     os.mkdir(download_directory)
-# else:
-#     image_processing.clear_directory(download_directory)
 
 if not os.path.isdir('tmp'):
     os.mkdir('tmp')
-# else:
-#     image_processing.clear_directory('tmp')
 
 if not os.path.isdir('tmp\\transformed_image'):
     os.mkdir('tmp\\transformed_image')
+
 if not os.path.isdir('tmp\\previews'):
     os.mkdir('tmp\\previews')
-# else:
-#     image_processing.clear_directory('tmp\\transformed_image')
 
 force_http = False
 if webgis_addr.startswith('http://'): force_http = True
@@ -112,8 +108,8 @@ now_day = current_datetime.day
 scenes = ngss.search_by_conditions(platform='Sentinel-1',
                                    # wkt_region=wkt_data,
                                    ogr_source=boundary,
-                                   start_date=datetime(now_year, now_month, now_day-7),
-                                   end_date=datetime(now_year, now_month, now_day+1),
+                                   start_date=datetime(now_year, now_month, now_day - 7),
+                                   end_date=datetime(now_year, now_month, now_day + 1),
                                    options=options)
 
 if scenes['code'] == 0:
@@ -158,7 +154,7 @@ file_upload.file_upload(webgis_addr=webgis_addr,
                         images_directory='tmp\\transformed_image',
                         parent_id=parent_id)
 
-# image_processing.clear_directory('tmp')
+image_processing.clear_directory('tmp')
 image_processing.clear_directory('tmp\\transformed_image')
 image_processing.clear_directory('tmp\\previews')
 image_processing.clear_directory('images')

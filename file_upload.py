@@ -8,15 +8,13 @@ from urllib.parse import urljoin
 
 
 def file_upload(webgis_addr, webgis_username, webgis_password, images_directory, parent_id=0):
-    # images_directory = 'transformed_image'
-    # creds = f"{webgis_username}:{webgis_password}"
+
     creds = (webgis_username, webgis_password)
 
     upload_dirs = [folder for folder in os.listdir(images_directory)]
 
     for upload_dir in upload_dirs:
         upload_dir_path = os.path.join(images_directory, upload_dir)
-        # upload_files = [os.path.join(upload_dir_path, file) for file in os.listdir(upload_dir_path)]
 
         print(f'Загрузка началась, директория {upload_dir}')
 
@@ -178,11 +176,3 @@ def tg_message(method, token, chat_id, text, preview_path):
     ).json()
 
     print('Message delivered')
-
-#
-#
-# file_upload('https://kolesnikov-p.nextgis.com',
-#             'pvk200815@gmail.com',
-#             'yNCY3VQ4zNDDYJ4',
-#             'tmp\\transformed_image',
-#             57)

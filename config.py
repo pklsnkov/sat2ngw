@@ -1,4 +1,5 @@
-boundary = 'boundary.geojson'
+boundary = 'boundary.geojson'  # имя geojson файла границы
+
 catalog = ''
 platform = ''
 satt_imagery_type = ''
@@ -9,5 +10,6 @@ webgis_username = ''
 webgis_password = ''
 parent_id = 0
 
+# логин и пароль и серсиса спутниковых снимков
 username_service = ''
 username_password = ''

@@ -64,18 +64,12 @@ def transform_tiff(folder, boundary, webgis_addr, webgis_username, webgis_passwo
 
     file_upload.file_upload(webgis_addr, webgis_username, webgis_password, 'tmp\\transformed_image', parent_id)
 
-    # clear_directory('tmp\\transformed_image')
-    # clear_directory('tmp')
-
 
 def calculating_percentiles(tiff_file):
     dataset = gdal.Open(tiff_file)
 
-    num_channels = dataset.RasterCount
-
     channel_stat = {}
 
-    # for num_channel in range(1, num_channels + 1):
     channel = dataset.GetRasterBand(1)
     channel_data = channel.ReadAsArray()
     per_5 = np.percentile(channel_data, 5)
@@ -164,11 +158,3 @@ def clear_directory(directory_path):
             clear_directory(item_path)
             os.rmdir(item_path)
             print(f"Delete directory: {item_path}")
-
-
-# extract('images')
-
-# webgis_addr = 'https://kolesnikov-p.nextgis.com'
-# webgis_username = 'pvk200815@gmail.com'
-# webgis_password = 'yNCY3VQ4zNDDYJ4'
-# transform_tiff('images', 'boundary.geojson', webgis_addr, webgis_username, webgis_password, 57)
